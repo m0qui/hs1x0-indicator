@@ -4,6 +4,7 @@ import codecs
 import json
 
 _LOGGER = logging.getLogger(__name__)
+socket.setdefaulttimeout(0.5)
 
 
 class SmartPlug(object):
@@ -49,7 +50,6 @@ class SmartPlug(object):
         if value.upper() == 'ON':
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                s.settimeout(1000)
                 s.connect((self.ip, self.port))
                 on_str = ('0000002ad0f281f88bff9af7d5'
                           'ef94b6c5a0d48bf99cf091e8b7'
@@ -60,12 +60,10 @@ class SmartPlug(object):
                 s.close()
             except socket.error:
                 return None
-
-
         elif value.upper() == 'OFF':
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                s.settimeout(1000)
+
                 s.connect((self.ip, self.port))
                 off_str = ('0000002ad0f281f88bff9af7d5'
                            'ef94b6c5a0d48bf99cf091e8b7'
@@ -86,21 +84,19 @@ class SmartPlug(object):
         skip = 4
         for i in string:
             if skip > 0:
-                skip = skip -1
+                skip = skip - 1
             else:
                 a = key ^ ord(i)
                 key = ord(i)
                 result += chr(a)
-    	return result
+        return result
 
     def hs100_status(self):
         """Query HS100 for relay status."""
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.settimeout(1000)
+
             s.connect((self.ip, self.port))
-            skip = 4
-            code = 171
             response = ""
             query_str = ('00000023d0f0d2a1d8abdfbad7'
                          'f5cfb494b6d1b4c09fec95e68f'
